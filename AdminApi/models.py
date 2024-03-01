@@ -14,13 +14,15 @@ class CustomUser(AbstractUser):
     
     
 class Admin(CustomUser):
-    email_address=models.EmailField()
+    email_address=models.EmailField()                       
     
     
 class BusOwner(CustomUser):
     name=models.CharField(max_length=100)
     phone=models.CharField(max_length=100)
     address=models.CharField(max_length=100)
+    proof=models.ImageField(upload_to="images",null=True,blank=True)
+    is_approved=models.BooleanField(default="False")
     
     def __str__(self):
         return self.name
@@ -38,22 +40,10 @@ class Passenger(CustomUser):
     
 
 
-class Bus(models.Model):
-    name=models.CharField(max_length=200)
-    owner=models.ForeignKey(BusOwner,on_delete=models.CASCADE,null=True)
-    image=models.ImageField(upload_to="images")
-    Number_plate=models.CharField(max_length=500)
-    Engine_no=models.IntegerField()
-    
 
-    is_active=models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
     
 class Route(models.Model):
     name=models.CharField(max_length=200)
-    owners = models.ForeignKey(BusOwner,on_delete=models.CASCADE)
     is_active=models.BooleanField(default=True)
 
     def __str__(self):
@@ -61,12 +51,40 @@ class Route(models.Model):
     
 class Busstop(models.Model):
     name=models.CharField(max_length=200)
-    owners=models.ForeignKey(BusOwner,on_delete=models.CASCADE,null=True)
     routes=models.ForeignKey(Route,on_delete=models.CASCADE)
     is_active=models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
+    
+
+
+class BusDriver(models.Model):
+    busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
+    name=models.CharField(max_length=200)
+    phone=models.CharField(max_length=100)
+    address=models.CharField(max_length=100)
+    license=models.FileField(upload_to="license")
+    age=models.IntegerField()
+    dob=models.DateField()
+
+
+    
+
+class Bus(models.Model):
+    busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
+    name=models.CharField(max_length=200)
+    image=models.ImageField(upload_to="images")
+    Number_plate=models.CharField(max_length=500)
+    Engine_no=models.IntegerField()
+    RC_book=models.ImageField(upload_to="license",null=True)
+    is_active=models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+
     
 
     

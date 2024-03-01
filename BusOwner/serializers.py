@@ -12,17 +12,3 @@ class OwnerSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return BusOwner.objects.create_user(**validated_data)
     
-
-class BusstpSerializer(serializers.ModelSerializer):
-    id=serializers.CharField(read_only=True)
-    routes=serializers.CharField(read_only=True)
-    class Meta:
-        model = Busstop
-        fields = ['id','name','routes']
-
-class RouteSerializer(serializers.ModelSerializer):
-    id=serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Route
-        fields = ['id','name']
