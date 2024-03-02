@@ -1,16 +1,15 @@
 from django.shortcuts import render
 from rest_framework.views import APIView,status
-from AdminApi.serializers import AdminSerializer,BusstpSerializer,RouteSerializer,BusownerviewSerializer,PassengerviewSerializer
+from AdminApi.serializers import AdminSerializer,RouteSerializer,BusstopSerializer,BusownerviewSerializer,PassengerviewSerializer,BusSerializer,AssignedRoutesSerializer
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework import authentication
 from rest_framework import permissions
-from AdminApi.models import BusOwner,Route,Busstop,Admin,Passenger
+from AdminApi.models import BusOwner,Route,Busstop,Admin,Passenger,Bus,RouteAssign
 from rest_framework.decorators import action
 
 
 
-# Create your views here.
 
 class AdminCreationView(APIView):
     def post(self,request,*args,**kwargs):
@@ -20,7 +19,6 @@ class AdminCreationView(APIView):
             return Response(data=serializer.data)
         else:
             return Response(data=serializer.errors)
-
 
 
 class RouteView(ViewSet):
@@ -47,11 +45,16 @@ class RouteView(ViewSet):
         serializer=RouteSerializer(qs,many=True)
         return Response(data=serializer.data)
     
-    def retrieve(self,request,*args,**kwargs):
-        id=kwargs.get("pk")
-        qs=Route.objects.get(id=id)
-        serializer=RouteSerializer(qs)
-        return Response(data=serializer.data)
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            route = Route.objects.get(pk=kwargs.get("pk"))
+        except Route.DoesNotExist:
+            return Response({"error": "Route does not exist"},status=status.HTTP_404_NOT_FOUND)
+        route_serializer = RouteSerializer(route)
+        stops_serializer = BusstopSerializer(route.busstop_set.all(), many=True)
+        response_data = route_serializer.data
+        response_data['stops'] = stops_serializer.data
+        return Response(response_data)
     
     
     def destroy(self,request,*args,**kwargs):
@@ -65,40 +68,25 @@ class RouteView(ViewSet):
 
     @action(methods=["post"], detail=True)
     def add_stop(self, request, *args, **kwargs):
-        stop_data_list = request.data.get('stops', [])  
-        route_id = kwargs.get("pk")
-        route_obj = Route.objects.get(id=route_id)
-        admin = request.user.id
-        admin_object = Admin.objects.get(id=admin)
-
-        errors = []
-        successes = []
-        if admin_object.user_type=="Admin":
-
-            for stop_data in stop_data_list:
-                serializer = BusstpSerializer(data=stop_data)
-                if serializer.is_valid():
-                    serializer.save(routes=route_obj, is_active=True)
-                    successes.append(serializer.data)
-                else:
-                    errors.append(serializer.errors)
-
-            if errors:
-                return Response(data={"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response(data={"Stops Added Sucessfully": successes}, status=status.HTTP_201_CREATED)
+        serializer=BusstopSerializer(data=request.data)
+        route_id=kwargs.get("pk")
+        route_obj=Route.objects.get(id=route_id)
+        if serializer.is_valid():
+            serializer.save(routes=route_obj,is_active=True)
+            return Response(data=serializer.data)
         else:
-            return Response(data={"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
-        
+            return Response(data=serializer.errors)             
 
 
 class OwnersView(ViewSet):    
     authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]  
+    permission_classes=[permissions.IsAuthenticated] 
+     
     def list(self,request,*args,**kwargs):
         qs=BusOwner.objects.all()
         serializer=BusownerviewSerializer(qs,many=True)
         return Response(data=serializer.data)
+    
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
@@ -109,7 +97,7 @@ class OwnersView(ViewSet):
     
     @action(detail=True, methods=["post"])
     def owner_approval(self, request, *args, **kwargs):
-        owner_id = kwargs.get("pk")
+        owner_id = kwargs.get("pk")     
         owner_obj = BusOwner.objects.get(id=owner_id)
         owner_obj.is_approved = True
         owner_obj.save()
@@ -129,6 +117,36 @@ class PassengerView(ViewSet):
         id=kwargs.get("pk")
         qs=Passenger.objects.get(id=id)
         serializer=PassengerviewSerializer(qs)
+        return Response(data=serializer.data)
+    
+
+class BusView(ViewSet):    
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]  
+    
+    def list(self,request,*args,**kwargs):
+        qs=Bus.objects.all()
+        serializer=BusSerializer(qs,many=True)
+        return Response(data=serializer.data)
+    
+    def retrieve(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        qs=Bus.objects.get(id=id)
+        serializer=BusSerializer(qs)
         return Response(data=serializer.data)            
     
 
+class AssignedRoutesView(ViewSet):    
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]  
+    
+    def list(self,request,*args,**kwargs):
+        qs=RouteAssign.objects.all()
+        serializer=AssignedRoutesSerializer(qs,many=True)
+        return Response(data=serializer.data)
+    
+    def retrieve(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        qs=RouteAssign.objects.get(id=id)
+        serializer=AssignedRoutesSerializer(qs)
+        return Response(data=serializer.data) 

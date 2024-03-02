@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from AdminApi.models import Passenger
+from AdminApi.models import Passenger,Route,RouteAssign,Busstop
 
 class PassengerSerializer(serializers.ModelSerializer):
     id=serializers.CharField(read_only=True)
@@ -13,3 +13,22 @@ class PassengerSerializer(serializers.ModelSerializer):
         return Passenger.objects.create_user(**validated_data)
 
 
+class RouteSerializer(serializers.ModelSerializer):
+    id=serializers.CharField(read_only=True)
+    class Meta:
+        model = Route
+        fields = "__all__"
+        
+
+class AssignedRoutesSerializer(serializers.ModelSerializer):
+    id=serializers.CharField(read_only=True)
+    class Meta:
+        model = RouteAssign
+        fields = "__all__"
+        
+        
+class BusstopSerializer(serializers.ModelSerializer):
+    id=serializers.CharField(read_only=True)
+    class Meta:
+        model = Busstop
+        fields = "__all__"

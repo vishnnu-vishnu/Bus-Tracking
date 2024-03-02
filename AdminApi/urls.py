@@ -6,20 +6,11 @@ from rest_framework.routers import DefaultRouter
 
 
 router=DefaultRouter()
-# router.register("place",views.PlaceCreate,basename="place")  
-# router.register("routes",views.RouteViewSet,basename="routes")  
-# router.register("busstop",views.BusStopViewSet,basename="busstop")
-# router.register("route",views.RouteView,basename="route")
 router.register("route",views.RouteView,basename="route")
 router.register("ownerview",views.OwnersView,basename="ownerview")
 router.register("passengerview",views.PassengerView,basename="ownerview")
-
-
- 
-
-
-
-
+router.register("bus",views.BusView,basename="bus-list")
+router.register("assignedroutes",views.AssignedRoutesView,basename="assignedroutes")
 
 
 

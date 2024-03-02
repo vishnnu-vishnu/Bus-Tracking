@@ -28,48 +28,15 @@ class BusOwner(CustomUser):
         return self.name
     
 
-class Passenger(CustomUser):
-    name=models.CharField(max_length=100)
-    phone=models.CharField(max_length=100)
-    email_address=models.EmailField()
-    address=models.CharField(max_length=100)
-
-
-    def __str__(self):
-        return self.name
-    
-
-
-
-    
-class Route(models.Model):
-    name=models.CharField(max_length=200)
-    is_active=models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-    
-class Busstop(models.Model):
-    name=models.CharField(max_length=200)
-    routes=models.ForeignKey(Route,on_delete=models.CASCADE)
-    is_active=models.BooleanField(default=True)
-
-    def __str__(self):
-        return self.name
-    
-
-
 class BusDriver(models.Model):
     busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
     name=models.CharField(max_length=200)
     phone=models.CharField(max_length=100)
     address=models.CharField(max_length=100)
-    license=models.FileField(upload_to="license")
+    license=models.ImageField(upload_to="image")
     age=models.IntegerField()
     dob=models.DateField()
 
-
-    
 
 class Bus(models.Model):
     busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
@@ -82,9 +49,52 @@ class Bus(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class Passenger(CustomUser):
+    name=models.CharField(max_length=100)
+    phone=models.CharField(max_length=100)
+    email_address=models.EmailField()
+    address=models.CharField(max_length=100)
 
 
+    def __str__(self):
+        return self.name
+    
+  
+class Route(models.Model):
+    name=models.CharField(max_length=200)
+    starts_from=models.CharField(max_length=200)
+    ends_at=models.CharField(max_length=200)
+    is_active=models.BooleanField(default=True)
 
+    def __str__(self):
+        return self.name
+    
+    
+class Busstop(models.Model):
+    routes=models.ForeignKey(Route,on_delete=models.CASCADE)
+    stop_name=models.CharField(max_length=200)
+    time_taken=models.TimeField()
+    approx_cost=models.PositiveIntegerField(default=10)
+    is_active=models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.stop_name
+
+
+class RouteAssign(models.Model):
+    busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
+    bus=models.ForeignKey(Bus,on_delete=models.CASCADE)
+    route=models.ForeignKey(Route,on_delete=models.CASCADE)
+    start_time=models.TimeField()
+    end_time=models.TimeField()
+    date=models.DateField()
+    
+    
+
+
+    
     
 
     

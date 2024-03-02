@@ -6,9 +6,10 @@ from rest_framework.routers import DefaultRouter
 
 
 router=DefaultRouter()
-# router.register("place",views.PlaceCreate,basename="place")  
-# router.register("routes",views.RouteViewSet,basename="routes")  
-# router.register("busstop",views.BusStopViewSet,basename="busstop")
+router.register("bus",views.BusView,basename="bus-add")  
+router.register("busdriver",views.BusDriverView,basename="busdriver-add")  
+router.register("routes",views.RouteView,basename="route-list")
+router.register("assignedroutes",views.RouteAssignsView,basename="assignedroutes-list")
 
  
 
