@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from rest_framework import authentication
 from rest_framework import permissions
+from rest_framework.decorators import action
+
 
 from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer
 from AdminApi.models import Passenger,Route,RouteAssign
@@ -46,3 +48,19 @@ class RouteView(ViewSet):
         response_data['stops'] = stops_serializer.data
         return Response(response_data)
     
+    
+    @action(methods=['get'],detail=False)
+    def search_route(self, request):
+        starts_from=request.data.get('starts_from').lower()
+        ends_at=request.data.get('ends_at').lower()
+
+        if starts_from and ends_at:
+            routes = Route.objects.filter(starts_from=starts_from, ends_at=ends_at)
+        elif ends_at:
+            routes = Route.objects.filter(ends_at=ends_at)
+        elif starts_from:
+            routes = Route.objects.filter(starts_from=starts_from)
+        else:
+            return Response({"error": "Please give atleast any place"},status=status.HTTP_400_BAD_REQUEST)
+        serializer = RouteSerializer(routes, many=True)
+        return Response(serializer.data)
