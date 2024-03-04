@@ -51,8 +51,8 @@ class RouteView(ViewSet):
     
     @action(methods=['get'],detail=False)
     def search_route(self, request):
-        starts_from=request.data.get('starts_from').lower()
-        ends_at=request.data.get('ends_at').lower()
+        starts_from=request.data.get('starts_from')
+        ends_at=request.data.get('ends_at')
 
         if starts_from and ends_at:
             routes = Route.objects.filter(starts_from=starts_from, ends_at=ends_at)

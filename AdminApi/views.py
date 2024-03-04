@@ -33,7 +33,7 @@ class RouteView(ViewSet):
         admin_object=Admin.objects.get(id=admin_id)
         if admin_object.user_type=="Admin":
             if serializer.is_valid():
-                serializer.save()
+                serializer.save(is_active=True)
                 return Response(data=serializer.data)
             else:
                 return Response(data=serializer.errors)
@@ -145,8 +145,34 @@ class AssignedRoutesView(ViewSet):
         serializer=AssignedRoutesSerializer(qs,many=True)
         return Response(data=serializer.data)
     
-    def retrieve(self,request,*args,**kwargs):
-        id=kwargs.get("pk")
-        qs=RouteAssign.objects.get(id=id)
-        serializer=AssignedRoutesSerializer(qs)
-        return Response(data=serializer.data) 
+    def retrieve(self, request, *args, **kwargs):
+        try:
+            assignment = RouteAssign.objects.get(pk=kwargs.get("pk"))
+        except RouteAssign.DoesNotExist:
+            return Response(
+                {"error": "Assignment does not exist"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = AssignedRoutesSerializer(assignment)
+        response_data = serializer.data
+        response_data['busowner'] = {
+            'id': assignment.busowner.id,
+            'name': assignment.busowner.name,
+            'phone': assignment.busowner.phone,
+            
+        }
+        response_data['bus'] = {
+            'id': assignment.bus.id,
+            'name': assignment.bus.name,
+            # Add other fields as needed
+        }
+        response_data['route'] = {
+            'id': assignment.route.id,
+            'name': assignment.route.name,
+            'starts_from': assignment.route.starts_from,
+            'ends_at': assignment.route.ends_at,
+            # Add other fields as needed
+        }
+
+        return Response(response_data)
