@@ -22,7 +22,7 @@ class PassengerCreationView(APIView):
             serializer.save(user_type="Passenger")
             return Response(data=serializer.data)
         else:
-            return Response(data=serializer.errors)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
         
 class RouteView(ViewSet):
