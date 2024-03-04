@@ -18,7 +18,7 @@ class AdminCreationView(APIView):
             serializer.save(user_type="Admin")
             return Response(data=serializer.data)
         else:
-            return Response(data=serializer.errors)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class RouteView(ViewSet):
