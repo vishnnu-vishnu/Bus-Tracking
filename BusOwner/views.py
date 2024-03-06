@@ -150,6 +150,15 @@ class RouteAssignsView(ViewSet):
         serializer=RouteAssignedSerializer(qs,many=True)
         return Response(data=serializer.data)   
     
+    def destroy(self, request, *args, **kwargs):
+        id = kwargs.get("pk")
+        try:
+            instance =RouteAssign.objects.get(id=id)
+            instance.delete()
+            return Response({"msg": "RouteAssign Driver removed"})
+        except BusDriver.DoesNotExist:
+            return Response({"msg": "RouteAssign Driver not found"}, status=status.HTTP_404_NOT_FOUND) 
+    
     
     
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from AdminApi.models import Passenger,Route,RouteAssign,Busstop
+from AdminApi.models import Passenger,Route,RouteAssign,Busstop,Bus
 
 class PassengerSerializer(serializers.ModelSerializer):
     id=serializers.CharField(read_only=True)
@@ -17,6 +17,12 @@ class RouteSerializer(serializers.ModelSerializer):
     id=serializers.CharField(read_only=True)
     class Meta:
         model = Route
+        fields = "__all__"
+        
+class BusSerializer(serializers.ModelSerializer):
+    id=serializers.CharField(read_only=True)
+    class Meta:
+        model = Bus
         fields = "__all__"
         
 

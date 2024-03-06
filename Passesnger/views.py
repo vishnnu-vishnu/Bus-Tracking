@@ -7,8 +7,8 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 
 
-from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer
-from AdminApi.models import Passenger,Route,RouteAssign
+from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer,BusSerializer
+from AdminApi.models import Passenger,Route,RouteAssign,Bus,Busstop
 
 
 
@@ -49,10 +49,10 @@ class RouteView(ViewSet):
         return Response(response_data)
     
     
-    @action(methods=['get'],detail=False)
+    @action(methods=['get'], detail=False)
     def search_route(self, request):
-        starts_from=request.data.get('starts_from')
-        ends_at=request.data.get('ends_at')
+        starts_from = request.data.get('starts_from')
+        ends_at = request.data.get('ends_at')
 
         if starts_from and ends_at:
             routes = Route.objects.filter(starts_from=starts_from, ends_at=ends_at)
@@ -61,6 +61,18 @@ class RouteView(ViewSet):
         elif starts_from:
             routes = Route.objects.filter(starts_from=starts_from)
         else:
-            return Response({"error": "Please give atleast any place"},status=status.HTTP_400_BAD_REQUEST)
-        serializer = RouteSerializer(routes, many=True)
-        return Response(serializer.data)
+            return Response({"status": 0, "error": "Please provide at least one place"}, status=status.HTTP_400_BAD_REQUEST)
+
+        buses_on_routes = Bus.objects.filter(routeassign__route__in=routes)
+        serializer = BusSerializer(buses_on_routes, many=True)
+        for bus_data in serializer.data:
+            bus_id = bus_data['id']
+            route_assignments = RouteAssign.objects.filter(bus_id=bus_id)
+            bus_data['route_assignments'] = [{'route_id': ra.route.id, 'start_time': ra.start_time, 'end_time': ra.end_time, 'route' : ra.route.name} for ra in route_assignments]
+
+        response_data = {
+            'status': 1,
+            'buses': serializer.data
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)

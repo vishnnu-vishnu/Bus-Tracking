@@ -89,7 +89,7 @@ class RouteAssign(models.Model):
     route=models.ForeignKey(Route,on_delete=models.CASCADE)
     start_time=models.TimeField()
     end_time=models.TimeField()
-    date=models.DateField()
+    
     
     
 

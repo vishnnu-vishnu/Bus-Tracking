@@ -165,14 +165,12 @@ class AssignedRoutesView(ViewSet):
         response_data['bus'] = {
             'id': assignment.bus.id,
             'name': assignment.bus.name,
-            # Add other fields as needed
         }
         response_data['route'] = {
             'id': assignment.route.id,
             'name': assignment.route.name,
             'starts_from': assignment.route.starts_from,
             'ends_at': assignment.route.ends_at,
-            # Add other fields as needed
         }
 
         return Response(response_data)
