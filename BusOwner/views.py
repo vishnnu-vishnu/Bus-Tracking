@@ -20,9 +20,10 @@ class OwnerCreationView(APIView):
         serializer=OwnerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user_type="Bus Owner")
-            return Response(data=serializer.data)
+            return Response(data={'status':1,'data':serializer.data})
         else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class BusView(ViewSet):
@@ -35,31 +36,32 @@ class BusView(ViewSet):
         busowner_obj=BusOwner.objects.get(id=busowner_id)
         if serializer.is_valid():
             serializer.save(busowner=busowner_obj)
-            return Response(data=serializer.data)
+            return Response(data={'status':1,'data':serializer.data})
         else:
-            return Response(data=serializer.errors)
-    
+            error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)
+            
     def list(self,request,*args,**kwargs):
         busowner_id=request.user.id
         busowner_obj=BusOwner.objects.get(id=busowner_id)
         qs=Bus.objects.filter(busowner=busowner_obj)
         serializer=BusSerializer(qs,many=True)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=Bus.objects.get(id=id)
         serializer=BusSerializer(qs)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def destroy(self, request, *args, **kwargs):
         id = kwargs.get("pk")
         try:
             instance =Bus.objects.get(id=id)
             instance.delete()
-            return Response({"msg": "bus removed"})
+            return Response({'status':1,"msg": "bus removed"})
         except Bus.DoesNotExist:
-            return Response({"msg": "bus not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'status':0,"msg": "bus not found"}, status=status.HTTP_404_NOT_FOUND)
   
 
 class BusDriverView(ViewSet):
@@ -72,31 +74,32 @@ class BusDriverView(ViewSet):
         serializer=BusDriverSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(busowner=busowner_obj)
-            return Response(data=serializer.data)
+            return Response(data={'status':1,'data':serializer.data})
         else:
-            return Response(data=serializer.errors)
+            error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)
     
     def list(self,request,*args,**kwargs):
         busowner_id=request.user.id
         busowner_obj=BusOwner.objects.get(id=busowner_id)
         qs=BusDriver.objects.filter(busowner=busowner_obj)
         serializer=BusDriverSerializer(qs,many=True)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def retrieve(self,request,*args,**kwargs):
         id=kwargs.get("pk")
         qs=BusDriver.objects.get(id=id)
         serializer=BusDriverSerializer(qs)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def destroy(self, request, *args, **kwargs):
         id = kwargs.get("pk")
         try:
             instance =BusDriver.objects.get(id=id)
             instance.delete()
-            return Response({"msg": "Bus Driver removed"})
+            return Response({'status':1,"msg": "Bus Driver removed"})
         except BusDriver.DoesNotExist:
-            return Response({"msg": "Bus Driver not found"}, status=status.HTTP_404_NOT_FOUND)    
+            return Response({'status':0,"msg": "Bus Driver not found"}, status=status.HTTP_404_NOT_FOUND)    
 
 
 
@@ -107,7 +110,7 @@ class RouteView(ViewSet):
     def list(self,request,*args,**kwargs):
         qs=Route.objects.all()
         serializer=RouteSerializer(qs,many=True)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def retrieve(self, request, *args, **kwargs):
         try:
@@ -118,7 +121,7 @@ class RouteView(ViewSet):
         stops_serializer = BusstopSerializer(route.busstop_set.all(), many=True)
         response_data = route_serializer.data
         response_data['stops'] = stops_serializer.data
-        return Response(response_data)
+        return Response(data={'status':1,'data':response_data})
     
 
     @action(methods=["post"], detail=True)
@@ -134,9 +137,10 @@ class RouteView(ViewSet):
             bus_obj.is_active=True
             bus_obj.save()
             serializer.save(route=route_obj,busowner=busowner_obj)
-            return Response(data=serializer.data)
+            return Response(data={'status':1,'data':serializer.data})
         else:
-            return Response(data=serializer.errors)      
+            error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)     
     
 
 class RouteAssignsView(ViewSet):
@@ -148,16 +152,16 @@ class RouteAssignsView(ViewSet):
         busowner_obj=BusOwner.objects.get(id=busowner_id)
         qs=RouteAssign.objects.filter(busowner=busowner_obj)
         serializer=RouteAssignedSerializer(qs,many=True)
-        return Response(data=serializer.data)   
+        return Response(data={'status':1,'data':serializer.data})   
     
     def destroy(self, request, *args, **kwargs):
         id = kwargs.get("pk")
         try:
             instance =RouteAssign.objects.get(id=id)
             instance.delete()
-            return Response({"msg": "RouteAssign Driver removed"})
+            return Response({'status':1,"msg": "RouteAssign Driver removed"})
         except BusDriver.DoesNotExist:
-            return Response({"msg": "RouteAssign Driver not found"}, status=status.HTTP_404_NOT_FOUND) 
+            return Response({'status':0,"msg": "RouteAssign Driver not found"}, status=status.HTTP_404_NOT_FOUND) 
     
     
     

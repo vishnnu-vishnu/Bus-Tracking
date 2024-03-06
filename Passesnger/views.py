@@ -20,9 +20,10 @@ class PassengerCreationView(APIView):
         serializer=PassengerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user_type="Passenger")
-            return Response(data=serializer.data)
+            return Response(data={'status':1,'data':serializer.data})
         else:
-            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)     
         
         
 class RouteView(ViewSet):
@@ -33,7 +34,7 @@ class RouteView(ViewSet):
     def list(self,request,*args,**kwargs):
         qs=Route.objects.all()
         serializer=RouteSerializer(qs,many=True)
-        return Response(data=serializer.data)
+        return Response(data={'status':1,'data':serializer.data})
     
     def retrieve(self, request, *args, **kwargs):
         try:
@@ -46,7 +47,7 @@ class RouteView(ViewSet):
         response_data = route_serializer.data
         response_data['bus assigned'] = bus_serializer.data
         response_data['stops'] = stops_serializer.data
-        return Response(response_data)
+        return Response(data={'status':1,'data':response_data})
     
     
     @action(methods=['get'], detail=False)
@@ -75,4 +76,4 @@ class RouteView(ViewSet):
             'buses': serializer.data
         }
 
-        return Response(response_data, status=status.HTTP_200_OK)
+        return Response(data={'status':1,'data':response_data}, status=status.HTTP_200_OK)
