@@ -126,21 +126,28 @@ class RouteView(ViewSet):
 
     @action(methods=["post"], detail=True)
     def route_assign(self, request, *args, **kwargs):
-        serializer=RouteAssignSerializer(data=request.data)
-        route_id=kwargs.get("pk")
-        route_obj=Route.objects.get(id=route_id)
-        busowner_id=request.user.id
-        busowner_obj=BusOwner.objects.get(id=busowner_id)
+        serializer = RouteAssignSerializer(data=request.data)
+        route_id = kwargs.get("pk")
+        route_obj = Route.objects.get(id=route_id)
+        busowner_id = request.user.id
+        busowner_obj = BusOwner.objects.get(id=busowner_id)
+
         if serializer.is_valid():
-            bus_id=request.data.get('bus')
-            bus_obj=Bus.objects.get(id=bus_id)
-            bus_obj.is_active=True
+            start_time = serializer.validated_data.get('start_time')
+            end_time = serializer.validated_data.get('end_time')
+            existing_assignments = RouteAssign.objects.filter(route=route_obj, start_time=start_time, end_time=end_time).exists()
+            if existing_assignments:
+                return Response(data={'status': 0, 'msg': 'A bus is already assigned to the route during the same time period'}, status=status.HTTP_400_BAD_REQUEST)
+
+            bus_id = serializer.validated_data.get('bus')
+            bus_obj = Bus.objects.get(id=bus_id)
+            bus_obj.is_active = True
             bus_obj.save()
-            serializer.save(route=route_obj,busowner=busowner_obj)
-            return Response(data={'status':1,'data':serializer.data})
+            serializer.save(route=route_obj, busowner=busowner_obj)
+            return Response(data={'status': 1, 'data': serializer.data})
         else:
             error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
-            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)     
+            return Response(data={'status': 0, 'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)    
     
 
 class RouteAssignsView(ViewSet):
