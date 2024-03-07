@@ -15,6 +15,15 @@ from AdminApi.models import Busstop,BusOwner,Route,Bus,BusDriver,RouteAssign
 
 # Create your views here.
 
+# custom permission view
+class IsBusOwnerApproved(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if not request.user.is_authenticated:
+            return False
+        if hasattr(request.user, 'busowner'):
+            return request.user.busowner.is_approved
+        return False    
+
 class OwnerCreationView(APIView):
     def post(self,request,*args,**kwargs):
         serializer=OwnerSerializer(data=request.data)
@@ -28,7 +37,7 @@ class OwnerCreationView(APIView):
 
 class BusView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated,IsBusOwnerApproved]
     
     def create(self,request,*args,**kwargs):
         serializer=BusSerializer(data=request.data)
@@ -66,7 +75,7 @@ class BusView(ViewSet):
 
 class BusDriverView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated,IsBusOwnerApproved]
     
     def create(self,request,*args,**kwargs):
         busowner_id=request.user.id
@@ -105,7 +114,7 @@ class BusDriverView(ViewSet):
 
 class RouteView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated,IsBusOwnerApproved]
     
     def list(self,request,*args,**kwargs):
         qs=Route.objects.all()
@@ -153,7 +162,7 @@ class RouteView(ViewSet):
 
 class RouteAssignsView(ViewSet):
     authentication_classes=[authentication.TokenAuthentication]
-    permission_classes=[permissions.IsAuthenticated]
+    permission_classes=[permissions.IsAuthenticated,IsBusOwnerApproved]
     
     def list(self,request,*args,**kwargs):
         busowner_id=request.user.id
