@@ -86,6 +86,7 @@ class Busstop(models.Model):
 class RouteAssign(models.Model):
     busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
     bus=models.ForeignKey(Bus,on_delete=models.CASCADE)
+    busdriver=models.ForeignKey(BusDriver,on_delete=models.CASCADE)
     route=models.ForeignKey(Route,on_delete=models.CASCADE)
     start_time=models.TimeField()
     end_time=models.TimeField()

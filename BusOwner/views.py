@@ -134,8 +134,9 @@ class RouteView(ViewSet):
 
         if serializer.is_valid():
             start_time = serializer.validated_data.get('start_time')
+            busdriver=serializer.validated_data.get('busdriver')
             end_time = serializer.validated_data.get('end_time')
-            existing_assignments = RouteAssign.objects.filter(route=route_obj, start_time=start_time, end_time=end_time).exists()
+            existing_assignments = RouteAssign.objects.filter(route=route_obj, start_time=start_time, end_time=end_time,busdriver=busdriver).exists()
             if existing_assignments:
                 return Response(data={'status': 0, 'msg': 'A bus is already assigned to the route during the same time period'}, status=status.HTTP_400_BAD_REQUEST)
 
