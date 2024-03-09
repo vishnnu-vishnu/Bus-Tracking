@@ -50,7 +50,7 @@ class RouteView(ViewSet):
         return Response(data={'status':1,'data':response_data})
     
     
-    @action(methods=['get'], detail=False)
+    @action(methods=['post'], detail=False)
     def search_route(self, request):
         starts_from = request.data.get('starts_from')
         ends_at = request.data.get('ends_at')
