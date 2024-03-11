@@ -5,14 +5,11 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework.decorators import action
-
-
 from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer,BusSerializer
 from AdminApi.models import Passenger,Route,RouteAssign,Bus,Busstop
 
 
 
-# Create your views here.
 
 
 class PassengerCreationView(APIView):
@@ -49,7 +46,7 @@ class RouteView(ViewSet):
         response_data['stops'] = stops_serializer.data
         return Response(data={'status':1,'data':response_data})
     
-    
+
     @action(methods=['post'], detail=False)
     def search_route(self, request):
         starts_from = request.data.get('starts_from')
@@ -66,14 +63,15 @@ class RouteView(ViewSet):
 
         buses_on_routes = Bus.objects.filter(routeassign__route__in=routes)
         serializer = BusSerializer(buses_on_routes, many=True)
+        
         for bus_data in serializer.data:
             bus_id = bus_data['id']
             route_assignments = RouteAssign.objects.filter(bus_id=bus_id)
-            bus_data['route_assignments'] = [{'route_id': ra.route.id, 'start_time': ra.start_time, 'end_time': ra.end_time, 'route' : ra.route.name} for ra in route_assignments]
+            bus_data['route_assignments'] = [{'route_id': ra.route.id, 'start_time': ra.start_time, 'end_time': ra.end_time, 'route': ra.route.name} for ra in route_assignments]
+            bus_data['route_ids'] = [ra.route.id for ra in route_assignments]  # Include route IDs within bus data
 
-        response_data = {
-            'status': 1,
-            'buses': serializer.data
-        }
+        return Response(data={'status': 1, 'buses': serializer.data}, status=status.HTTP_200_OK)
 
-        return Response(data={'status':1,'data':response_data}, status=status.HTTP_200_OK)
+        
+        
+    
