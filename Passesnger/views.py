@@ -7,6 +7,11 @@ from rest_framework import permissions
 from rest_framework.decorators import action
 from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer,BusSerializer
 from AdminApi.models import Passenger,Route,RouteAssign,Bus,Busstop
+import nexmo
+from django.http import HttpResponse
+
+from Passesnger.services import get_coordinates,get_Bus_stations,get_workshops,get_fuel_stations
+
 
 
 
@@ -73,5 +78,86 @@ class RouteView(ViewSet):
         return Response(data={'status': 1, 'buses': serializer.data}, status=status.HTTP_200_OK)
 
         
+ 
+
+class AlertMessageView(APIView):
+    def post(self, request):
+        client = nexmo.Client(key='af5fc598', secret='VW4M2qLTBeb6Ejvu')
+
+        response = client.send_message({
+            'from': 'YourApp',
+            'to': '+917994620947',  #update with your number
+            'text': 'Iam in danger.Please help me out!',
+        })
+
+        if response['messages'][0]['status'] == '0':
+            return HttpResponse('SOS message sent successfully!')
+        else:
+            return HttpResponse('Failed to send SOS message!')
         
+        
+class BusStationView(APIView):
+    def post(self, request, *args, **kwargs):
+        place_name = request.data.get('place_name')
+
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        coordinates = get_coordinates(place_name)
+
+        if not coordinates:
+            return Response({'error': 'Failed to obtain coordinates'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        lat, lng = coordinates
+        
+        bus_station = get_Bus_stations(lat, lng)
+
+        if not  bus_station:
+            return Response({'error': 'Failed to obtain Bus stations'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'bus_station':  bus_station})
     
+
+    
+class FuelstationView(APIView):
+    def post(self, request, *args, **kwargs):
+        place_name = request.data.get('place_name')
+
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        coordinates = get_coordinates(place_name)
+
+        if not coordinates:
+            return Response({'error': 'Failed to obtain coordinates'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        lat, lng = coordinates
+        
+        fuel_station = get_fuel_stations(lat, lng)
+
+        if not fuel_station:
+            return Response({'error': 'Failed to obtain Fuel stations'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'fuel_station': fuel_station})
+
+        
+class WorkshopView(APIView):
+    def post(self, request, *args, **kwargs):
+        place_name = request.data.get('place_name')
+
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        coordinates = get_coordinates(place_name)
+
+        if not coordinates:
+            return Response({'error': 'Failed to obtain coordinates'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        lat, lng = coordinates
+        
+        workshop = get_workshops(lat, lng)
+
+        if not workshop:
+            return Response({'error': 'Failed to obtain Workshops'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'workshop': workshop})
