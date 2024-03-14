@@ -5,7 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework.decorators import action
-from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer,BusSerializer
+from Passesnger.serializers import PassengerSerializer,AssignedRoutesSerializer,RouteSerializer,BusstopSerializer,BusSerializer,BusViewSerializer
 from AdminApi.models import Passenger,Route,RouteAssign,Bus,Busstop
 import nexmo
 from django.http import HttpResponse

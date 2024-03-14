@@ -26,8 +26,15 @@ class BusSerializer(serializers.ModelSerializer):
         fields = "__all__"
         
 
+class BusViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bus
+        fields = ["name","image"]
+        
+
 class AssignedRoutesSerializer(serializers.ModelSerializer):
     id=serializers.CharField(read_only=True)
+    bus=BusViewSerializer()
     class Meta:
         model = RouteAssign
         fields = "__all__"
