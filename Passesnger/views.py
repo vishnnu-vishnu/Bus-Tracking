@@ -56,7 +56,6 @@ class RouteView(ViewSet):
     def search_route(self, request):
         starts_from = request.data.get('starts_from')
         ends_at = request.data.get('ends_at')
-
         if starts_from and ends_at:
             routes = Route.objects.filter(starts_from=starts_from, ends_at=ends_at)
         elif ends_at:
@@ -65,20 +64,21 @@ class RouteView(ViewSet):
             routes = Route.objects.filter(starts_from=starts_from)
         else:
             return Response({"status": 0, "error": "Please provide at least one place"}, status=status.HTTP_400_BAD_REQUEST)
-
         buses_on_routes = Bus.objects.filter(routeassign__route__in=routes)
         serializer = BusSerializer(buses_on_routes, many=True)
-        
+        buses_data = []
+        route_ids = set()
         for bus_data in serializer.data:
             bus_id = bus_data['id']
             route_assignments = RouteAssign.objects.filter(bus_id=bus_id)
-            bus_data['route_assignments'] = [{'route_id': ra.route.id, 'start_time': ra.start_time, 'end_time': ra.end_time, 'route': ra.route.name} for ra in route_assignments]
-            bus_data['route_ids'] = [ra.route.id for ra in route_assignments]  # Include route IDs within bus data
-
-        return Response(data={'status': 1, 'buses': serializer.data}, status=status.HTTP_200_OK)
-
-        
- 
+            route_assignments_data = [{'start_time': ra.start_time, 'end_time': ra.end_time, 'route': ra.route.name} for ra in route_assignments]
+            route_id = route_assignments.first().route.id 
+            route_ids.add(route_id)
+            bus_data['route_assignments'] = route_assignments_data
+            buses_data.append(bus_data)
+        route_id = route_ids.pop() if route_ids else None
+        return Response(data={'status': 1, 'route_id': route_id, 'buses': buses_data}, status=status.HTTP_200_OK)
+    
 
 class AlertMessageView(APIView):
     def post(self, request):
