@@ -169,7 +169,13 @@ class RouteAssignsView(ViewSet):
         busowner_obj=BusOwner.objects.get(id=busowner_id)
         qs=RouteAssign.objects.filter(busowner=busowner_obj)
         serializer=RouteAssignedSerializer(qs,many=True)
-        return Response(data={'status':1,'data':serializer.data})   
+        return Response(data={'status':1,'data':serializer.data})
+     
+    def retrieve(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        qs=RouteAssign.objects.get(id=id)
+        serializer=RouteAssignedSerializer(qs)
+        return Response(data={'status':1,'data':serializer.data})  
     
     def destroy(self, request, *args, **kwargs):
         id = kwargs.get("pk")

@@ -54,6 +54,8 @@ class RouteAssignSerializer(serializers.ModelSerializer):
         
         
 class RouteAssignedSerializer(serializers.ModelSerializer):
+    route=RouteSerializer()
+    bus=BusSerializer()
     class Meta:
         model = RouteAssign
         fields = "__all__" 

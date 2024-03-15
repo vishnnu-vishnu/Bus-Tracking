@@ -21,7 +21,7 @@ class BusOwner(CustomUser):
     name=models.CharField(max_length=100)
     phone=models.CharField(max_length=100)
     address=models.CharField(max_length=100)
-    proof=models.ImageField(upload_to="images",null=True,blank=True)
+    proof=models.CharField(max_length=100,null=True)
     is_approved=models.BooleanField(default="False")
     
     def __str__(self):
@@ -33,7 +33,7 @@ class BusDriver(models.Model):
     name=models.CharField(max_length=200)
     phone=models.CharField(max_length=100)
     address=models.CharField(max_length=100)
-    license=models.ImageField(upload_to="image")
+    license=models.CharField(max_length=100,null=True)
     age=models.IntegerField()
     dob=models.DateField()
 
@@ -41,10 +41,10 @@ class BusDriver(models.Model):
 class Bus(models.Model):
     busowner=models.ForeignKey(BusOwner,on_delete=models.CASCADE)
     name=models.CharField(max_length=200)
-    image=models.ImageField(upload_to="images")
+    image=models.CharField(max_length=100,null=True)
     Number_plate=models.CharField(max_length=500)
     Engine_no=models.IntegerField()
-    RC_book=models.ImageField(upload_to="license",null=True)
+    RC_book=models.CharField(max_length=100,null=True)
     is_active=models.BooleanField(default=True)
 
     def __str__(self):
