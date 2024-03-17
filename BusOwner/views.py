@@ -149,10 +149,10 @@ class RouteView(ViewSet):
             if existing_assignments:
                 return Response(data={'status': 0, 'msg': 'A bus is already assigned to the route during the same time period'}, status=status.HTTP_400_BAD_REQUEST)
 
-            bus_id = serializer.validated_data.get('bus')
-            bus_obj = Bus.objects.get(id=bus_id)
-            bus_obj.is_active = True
-            bus_obj.save()
+            # bus_id = serializer.validated_data.get('bus')
+            # bus_obj = Bus.objects.get(id=bus_id)
+            # bus_obj.is_active = True
+            # bus_obj.save()
             serializer.save(route=route_obj, busowner=busowner_obj)
             return Response(data={'status': 1, 'data': serializer.data})
         else:
