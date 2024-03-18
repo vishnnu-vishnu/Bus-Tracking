@@ -1,12 +1,14 @@
 from django.contrib import admin
-from AdminApi.models import Busstop,Route,RouteAssign
+from AdminApi.models import Busstop,Route,RouteAssign,CustomUser
+from django.contrib.auth.admin import UserAdmin
 
-# Register your models here.
+class CustomUserAdmin(UserAdmin):
+    # Define the fields to be displayed in the admin panel
+    list_display = ['username', 'email', 'user_type']
+    # Add any other customizations as needed
 
+# Register the CustomUser model with the CustomUserAdmin
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Busstop)
 admin.site.register(Route)
 admin.site.register(RouteAssign)
-
-
-
-

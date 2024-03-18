@@ -109,6 +109,7 @@ class OwnersView(ViewSet):
 class PassengerView(ViewSet):    
     authentication_classes=[authentication.TokenAuthentication]
     permission_classes=[permissions.IsAuthenticated]  
+    
     def list(self,request,*args,**kwargs):
         qs=Passenger.objects.all()
         serializer=PassengerviewSerializer(qs,many=True)
