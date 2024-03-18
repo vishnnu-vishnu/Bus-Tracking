@@ -12,8 +12,6 @@ urlpatterns = [
     path("token/",ObtainAuthToken.as_view(),name="token"),
     path("alert/",views.AlertMessageView.as_view(),name="alert"),
     path('bus_stations/', views.BusStationView.as_view()),
-    path('fuel_stations/', views.FuelstationView.as_view()),
-    path('workshop/', views.WorkshopView.as_view()),
 
     
 ] + router.urls

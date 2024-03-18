@@ -12,6 +12,7 @@ from rest_framework.response import Response
 
 from BusOwner.serializers import OwnerSerializer,BusSerializer,BusDriverSerializer,RouteAssignSerializer,RouteSerializer,BusstopSerializer,RouteAssignedSerializer
 from AdminApi.models import Busstop,BusOwner,Route,Bus,BusDriver,RouteAssign
+from Passesnger.services import get_coordinates,get_workshops,get_fuel_stations
 
 # Create your views here.
 
@@ -188,7 +189,48 @@ class RouteAssignsView(ViewSet):
     
     
     
+class FuelstationView(APIView):
+    def post(self, request, *args, **kwargs):
+        place_name = request.data.get('place_name')
 
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        coordinates = get_coordinates(place_name)
+
+        if not coordinates:
+            return Response({'error': 'Failed to obtain coordinates'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        lat, lng = coordinates
+        
+        fuel_station = get_fuel_stations(lat, lng)
+
+        if not fuel_station:
+            return Response({'error': 'Failed to obtain Fuel stations'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'fuel_station': fuel_station})
+
+        
+class WorkshopView(APIView):
+    def post(self, request, *args, **kwargs):
+        place_name = request.data.get('place_name')
+
+        if not place_name:
+            return Response({'error': 'Place name is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        coordinates = get_coordinates(place_name)
+
+        if not coordinates:
+            return Response({'error': 'Failed to obtain coordinates'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        lat, lng = coordinates
+        
+        workshop = get_workshops(lat, lng)
+
+        if not workshop:
+            return Response({'error': 'Failed to obtain Workshops'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({'workshop': workshop})
 
 
 
