@@ -133,6 +133,17 @@ class RouteView(ViewSet):
         response_data['stops'] = stops_serializer.data
         return Response(data={'status':1,'data':response_data})
     
+    
+    @action(methods=["post"], detail=True)
+    def my_buses(self,request,*args,**kwargs):
+        route_id = kwargs.get("pk")
+        route_obj = Route.objects.get(id=route_id)
+        busowner_id=request.user.id
+        busowner_obj=BusOwner.objects.get(id=busowner_id)
+        qs=RouteAssign.objects.filter(busowner=busowner_obj,route=route_obj)
+        serializer=RouteAssignedSerializer(qs,many=True)
+        return Response(data={'status':1,'data':serializer.data})
+    
 
     @action(methods=["post"], detail=True)
     def route_assign(self, request, *args, **kwargs):
