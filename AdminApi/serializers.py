@@ -33,7 +33,7 @@ class RouteSerializer(serializers.ModelSerializer):
 class BusownerviewSerializer(serializers.ModelSerializer):
     class Meta:
         model=BusOwner
-        fields=["id","username","proof","phone","name","address","is_approved"]
+        fields=["id","username","proof","phone","name","address","is_approved","password"]
 
 
 class PassengerviewSerializer(serializers.ModelSerializer):

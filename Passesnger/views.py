@@ -87,7 +87,7 @@ class AlertMessageView(APIView):
         response = client.send_message({
             'from': 'YourApp',
             'to': '+917994620947',  #update with your number
-            'text': 'Iam in danger.Please help me out!',
+            'text': 'Hey i need to get out..please stop!',
         })
 
         if response['messages'][0]['status'] == '0':

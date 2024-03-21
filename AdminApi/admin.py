@@ -1,5 +1,5 @@
 from django.contrib import admin
-from AdminApi.models import Busstop,Route,RouteAssign,CustomUser
+from AdminApi.models import Busstop,Route,RouteAssign,CustomUser,BusOwner
 from django.contrib.auth.admin import UserAdmin
 
 class CustomUserAdmin(UserAdmin):
@@ -10,5 +10,5 @@ class CustomUserAdmin(UserAdmin):
 # Register the CustomUser model with the CustomUserAdmin
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Busstop)
-admin.site.register(Route)
+admin.site.register(BusOwner)
 admin.site.register(RouteAssign)
