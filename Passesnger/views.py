@@ -83,10 +83,14 @@ class RouteView(ViewSet):
 class AlertMessageView(APIView):
     def post(self, request):
         client = nexmo.Client(key='af5fc598', secret='VW4M2qLTBeb6Ejvu')
+        number=request.data.get('number')   #+917994620947
+        
+        if not number:
+            return Response(data={"status": 0, "error": "phone number is required"},status=status.HTTP_404_NOT_FOUND)
 
         response = client.send_message({
             'from': 'YourApp',
-            'to': '+917994620947',  #update with your number
+            'to': number,
             'text': 'Hey i need to get out..please stop!',
         })
 
