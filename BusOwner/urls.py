@@ -21,7 +21,7 @@ router.register("assignedroutes",views.RouteAssignsView,basename="assignedroutes
 
 urlpatterns = [
     path("register/",views.OwnerCreationView.as_view(),name="signup"),
-    path("token/",ObtainAuthToken.as_view(),name="token"),
+    path("token/",views.CustomObtainAuthToken.as_view(),name="token"),
     path('fuel_stations/', views.FuelstationView.as_view()),
     path('workshop/', views.WorkshopView.as_view()),
 

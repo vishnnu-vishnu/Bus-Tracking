@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import action
+from django.contrib.auth import login
 
 
 from rest_framework.views import APIView,status
@@ -9,6 +10,9 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import authentication
 from rest_framework import permissions
 from rest_framework.response import Response
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
 
 from BusOwner.serializers import OwnerSerializer,BusSerializer,BusDriverSerializer,RouteAssignSerializer,RouteSerializer,BusstopSerializer,RouteAssignedSerializer
 from AdminApi.models import Busstop,BusOwner,Route,Bus,BusDriver,RouteAssign
@@ -23,7 +27,22 @@ class IsBusOwnerApproved(permissions.BasePermission):
             return False
         if hasattr(request.user, 'busowner'):
             return request.user.busowner.is_approved
-        return False    
+        return False  
+    
+    
+class CustomObtainAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        user_obj=BusOwner.objects.get(id=user.id)
+        user_approved=user_obj.is_approved
+        if user_approved:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response(data={'status':1,'token': token.key})
+        else:
+            return Response(data={"status": 0, "msg": "You are not an approved bus owner"}, status=status.HTTP_403_FORBIDDEN)
+
 
 class OwnerCreationView(APIView):
     def post(self,request,*args,**kwargs):

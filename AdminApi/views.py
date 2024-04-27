@@ -130,7 +130,7 @@ class OwnersView(ViewSet):
         owner_obj.is_approved = True
         owner_obj.save()
         serializer = BusownerviewSerializer(owner_obj)
-        return Response(data={'status':1,'data':serializer.data})
+        return Response(data={'status':1,'msg':"Bus owner has been approved"})
     
 
 class PassengerView(ViewSet):    
