@@ -57,12 +57,14 @@ class RouteView(ViewSet):
         return Response(data={'status':1,'data':response_data})
     
     
-    def destroy(self,request,*args,**kwargs):
+    def destroy(self, request, *args, **kwargs):
         id = kwargs.get("pk")
-        route = Route.objects.get(id=id)
-        route.is_active = False
-        route.save()
-        return Response(data={'status':1,"message": "route is now inactive"})
+        try:
+            instance =Route.objects.get(id=id)
+            instance.delete()
+            return Response({'status':1,"msg": "Route removed"})
+        except Route.DoesNotExist:
+            return Response({'status':0,"msg": "Route not found"}, status=status.HTTP_404_NOT_FOUND) 
     
 
 
@@ -76,7 +78,32 @@ class RouteView(ViewSet):
             return Response(data={'status':1,'data':serializer.data})
         else:
             error_messages = ' '.join([error for errors in serializer.errors.values() for error in errors])
-            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)            
+            return Response(data={'status':0,'msg': error_messages}, status=status.HTTP_400_BAD_REQUEST)   
+        
+        
+class StopView(ViewSet):
+    authentication_classes=[authentication.TokenAuthentication]
+    permission_classes=[permissions.IsAuthenticated]
+    
+    def list(self,request,*args,**kwargs):
+        qs=Busstop.objects.all()
+        serializer=BusstopSerializer(qs,many=True)
+        return Response(data={'status':1,'data':serializer.data})
+     
+    def retrieve(self,request,*args,**kwargs):
+        id=kwargs.get("pk")
+        qs=Busstop.objects.get(id=id)
+        serializer=BusstopSerializer(qs)
+        return Response(data={'status':1,'data':serializer.data})  
+    
+    def destroy(self, request, *args, **kwargs):
+        id = kwargs.get("pk")
+        try:
+            instance =Busstop.objects.get(id=id)
+            instance.delete()
+            return Response({'status':1,"msg": "Busstop removed"})
+        except Busstop.DoesNotExist:
+            return Response({'status':0,"msg": "Busstop not found"}, status=status.HTTP_404_NOT_FOUND)          
 
 
 class OwnersView(ViewSet):    
